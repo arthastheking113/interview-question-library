@@ -2,8 +2,8 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
-
-import { api } from "~/utils/api";
+import { SearchBar } from "~/components/searchBar";
+import { HomeNavigation } from "~/components/homeNavigation";
 
 const Home: NextPage = () => {
 
@@ -41,7 +41,7 @@ const Home: NextPage = () => {
           </div>
         </Link>
       </div>
-      <div className="flex flex-col items-center gap-2">
+      <div className="w-full flex flex-col items-center gap-2">
         <AuthShowcase />
       </div>
     </>
@@ -53,15 +53,36 @@ export default Home;
 const AuthShowcase: React.FC = () => {
   const { data: sessionData } = useSession();
   return (
-    <div className="flex flex-col items-center justify-center gap-4 text-white">
+    <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
       
       
       {(() => {
         if(sessionData == null) {
+          
           return (
+            <>
             <p>In order to use this app, you need to have an account.</p>
+              <button
+                className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+                onClick={() => void signIn()}
+              >
+                {"Sign in"}
+              </button>
+            </>
+            
           ) 
+        }else{
+          return (
+            <>
+              <SearchBar />
+            </>
+            
+          )
         }
+      })()}
+
+      {(() => {
+
         if (sessionData?.user.role == "admin") {
           return (
             <>
@@ -73,12 +94,7 @@ const AuthShowcase: React.FC = () => {
           )
         }
       })()}
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
+      
     </div>
   );
   
