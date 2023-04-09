@@ -52,7 +52,7 @@ const ManageUserRole: NextPage = () => {
                         <tbody>
                           {allquery?.map(function(item, i){
                             return (
-                              <Row key={i} user={item} onChangeHandler={onChange}/>
+                              <Row key={i} user={item} currentUserId={sessionData?.user?.id as string} onChangeHandler={onChange}/>
                             )
                           })}
                         </tbody>
@@ -83,7 +83,8 @@ const options: Array<Option> = [
 ]
 interface RowProps {
   onChangeHandler: (userId: string, role: string) => void
-  user: User
+  user: User,
+  currentUserId: string
 }
 
 const Row: React.FC<RowProps> = (props: RowProps) => {
@@ -106,7 +107,7 @@ const Row: React.FC<RowProps> = (props: RowProps) => {
               key={option.id || option.value}
               value={option.value}
               selected={props.user.role === option.value}
-              disabled={props.user.role === "admin"}
+              disabled={props.user.role === "admin" && props.user.id == props.currentUserId}
             >
               {option.name}
             </option>
