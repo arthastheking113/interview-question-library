@@ -1,11 +1,7 @@
 import { type NextPage } from "next";
-import Head from "next/head";
-import Link from "next/link";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from "react";
-import { HomeNavigation } from "~/components/homeNavigation";
 
 
 const Tags: NextPage = () => {

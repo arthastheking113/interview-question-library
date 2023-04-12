@@ -57,6 +57,11 @@ export const tagRouter = createTRPCRouter({
     delete: protectedProcedure
     .input(z.object({id: z.string()}))
     .mutation(async ({input}) => {
+        await prisma.questionTag.deleteMany({
+            where:{
+                tagId: input.id
+            }
+        });
         await prisma.tag.delete({
             where: {
                 id: input.id,

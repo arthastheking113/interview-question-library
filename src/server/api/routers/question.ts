@@ -12,12 +12,12 @@ export const questionRouter = createTRPCRouter({
     getQuestions: protectedProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ input }) => {
-    return await prisma.tag.findMany({ 
-        where: { 
-            userId: { 
-                equals: input?.userId
+        return await prisma.tag.findMany({ 
+            where: { 
+                userId: { 
+                    equals: input?.userId
+                }
             }
-        }
         });
     }),
 
@@ -43,7 +43,7 @@ export const questionRouter = createTRPCRouter({
                     {
                         tags:{
                             every: {
-                                id: {
+                                tagId: {
                                     in: input.tagId
                                 }
                             }
@@ -56,6 +56,9 @@ export const questionRouter = createTRPCRouter({
             take: input.pageSize,
             orderBy:{
                 updatedAt: "desc"
+            },
+            include:{
+                tags: true
             }
         });
     }),
