@@ -2,8 +2,9 @@ import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/router";
 
-const Questions: NextPage = () => {
+const PositionCreate: NextPage = () => {
   const { data: sessionData } = useSession({ required: true,
     onUnauthenticated() {
         void signIn();
@@ -11,11 +12,13 @@ const Questions: NextPage = () => {
 
     
   const ctx = api.useContext();
+  const router = useRouter();
 
-  const createQuestion = api.question.create.useMutation({
+  const createPosition = api.position.create.useMutation({
     onSuccess: () => {
       setTitle("");
       setContent("");
+      void router.push("/positions");
     }
   });
 
@@ -25,7 +28,7 @@ const Questions: NextPage = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    createQuestion.mutate({title: title, content: content, userId: sessionData?.user?.id as string});
+    createPosition.mutate({title: title, description: content, userId: sessionData?.user?.id as string});
   }
 
   return (
@@ -36,7 +39,7 @@ const Questions: NextPage = () => {
             return (
               <>
                 <h4 className="text-4xl">
-                  Create new question
+                  Create new position
                 </h4>
                 <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
                   <div className=" shadow-sm -space-y-px">
@@ -98,4 +101,4 @@ const Questions: NextPage = () => {
   );
 };
 
-export default Questions;
+export default PositionCreate;

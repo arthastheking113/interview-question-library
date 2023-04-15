@@ -12,15 +12,35 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Position {
+  id                      String @id @default(cuid())
+  title                   String
+  description             String
+  positionQuestion        PositionQuestion[]
+  userId                  String
+  user                    User              @relation(fields: [userId], references: [id])
+}
+
+
+model PositionQuestion {
+  id              String @id @default(cuid())
+  sortOrder       Int
+  questionId      String            @unique
+  question        Question          @relation(fields: [questionId], references: [id])
+  positionId      String            @unique
+  position        Position          @relation(fields: [positionId], references: [id])
+}
+
 model Question {
-  id              String            @id @default(cuid())
-  title           String
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  userId          String
-  user            User              @relation(fields: [userId], references: [id])
-  questionContent QuestionContent?
-  tags            QuestionTag[]
+  id                      String            @id @default(cuid())
+  title                   String
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  userId                  String
+  user                    User              @relation(fields: [userId], references: [id])
+  questionContent         QuestionContent?
+  tags                    QuestionTag[]
+  positionQuestion        PositionQuestion[]
 }
 
 model QuestionTag {
@@ -52,8 +72,6 @@ model Answer {
 model Tag {
   id              String   @id @default(cuid())
   name            String
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
   questions       QuestionTag[]
 }
 
@@ -96,7 +114,7 @@ model User {
   sessions      Session[]
   questions     Question[]
   answers       Answer[]
-  tags          Tag[]
+  positions     Position[]
 }
 
 model VerificationToken {

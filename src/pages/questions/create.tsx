@@ -2,44 +2,34 @@ import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/router";
+import { Question } from "@prisma/client";
 
-
-const Tags: NextPage = () => {
+const QuestionsCreate: NextPage = () => {
   const { data: sessionData } = useSession({ required: true,
     onUnauthenticated() {
         void signIn();
     },});
-  const [name, setContent] = useState("");
-  const [error, setError] = useState("");
-  const { data: tags} = api.tag.getTags.useQuery();
-  const ctx = api.useContext();
 
-  const createTag = api.tag.create.useMutation({
-    onSuccess: () => {
+    
+  const ctx = api.useContext();
+  const router = useRouter();
+
+  const createQuestion = api.question.create.useMutation({
+    onSuccess: (data) => {
+      setTitle("");
       setContent("");
-      void ctx.tag.getTags.invalidate();
+      void router.push(`/questions/edit/${data.id}`);
     }
   });
 
-  const deleteTodo = api.tag.delete.useMutation({
-    onSuccess: () => {
-        void ctx.tag.getTags.invalidate();
-    }
-  })
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const isExist = void ctx.tag.isTagExist.invalidate({ text: name });
-    if(!isExist){
-      createTag.mutate({name: name, userId: sessionData?.user?.id as string});
-      setError("");
-    }else{
-      setError("This tag already exists");
-    }
-  }
-
-  const removeTodo = (id: string) => {
-    deleteTodo.mutate({id: id});
+    createQuestion.mutate({title: title, content: content, userId: sessionData?.user?.id as string});
   }
 
   return (
@@ -49,26 +39,39 @@ const Tags: NextPage = () => {
           if (sessionData != null) {
             return (
               <>
-                <h4 className="text-4xl">Create new tag</h4>
-                {(() => {
-                  if(error != ""){
-                    return (<h4 className="text-red-700">{error}</h4>)
-                  }
-                })}
+                <h4 className="text-4xl">
+                  Create new question
+                </h4>
                 <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
                   <div className=" shadow-sm -space-y-px">
                     <div>
                       <input
                         type="text"
                         required
-                        value={name}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="appearance-none rounded-none relative block
+                        w-full px-3 py-2 border border-gray-300
+                        placeholder-gray-500 text-gray-900
+                        focus:outline-none focus:ring-indigo-500
+                        focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        placeholder="Question title"
+                      />
+                    </div>
+                  </div>
+                  <div className=" shadow-sm -space-y-px">
+                    <div>
+                      <textarea
+                        required
+                        rows={10}
+                        value={content}
                         onChange={(e) => setContent(e.target.value)}
                         className="appearance-none rounded-none relative block
                         w-full px-3 py-2 border border-gray-300
                         placeholder-gray-500 text-gray-900
                         focus:outline-none focus:ring-indigo-500
                         focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Tag name"
+                        placeholder="Question Content"
                       />
                     </div>
                   </div>
@@ -88,16 +91,10 @@ const Tags: NextPage = () => {
                     </button>
                   </div>
                 </form>
-                <h4 className="text-4xl">Tags list:</h4>
               </>
-              
             )
           }
         })()}
-        
-        {tags?.map(function(item, i){
-          return <p className="text-lg" key={i}>{item.name} <span onClick={() => removeTodo(item.id)} className="text-red-400 cursor-pointer">x</span></p>
-        })}
 
       </div>
     </>
@@ -105,4 +102,4 @@ const Tags: NextPage = () => {
   );
 };
 
-export default Tags;
+export default QuestionsCreate;

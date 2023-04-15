@@ -17,15 +17,22 @@ export const tagRouter = createTRPCRouter({
     }),
 
     getTags: protectedProcedure
-    .input(z.object({ userId: z.string()}))
+    .query(async () => {
+        return await prisma.tag.findMany({});
+    }),
+
+    isTagExist: protectedProcedure
+    .input(z.object({ text: z.string()}))
     .query(async ({ input }) => {
-    return await prisma.tag.findMany({ 
-        where: { 
-            userId: { 
-                equals: input?.userId
+        const count = await prisma.tag.count({
+            where:{
+                name: input.text.toLowerCase().trim()
             }
-        }
         });
+        
+        if(count == 0) return true;
+
+        return false;
     }),
 
     searchTags: protectedProcedure
@@ -51,7 +58,7 @@ export const tagRouter = createTRPCRouter({
     .input(z.object({userId: z.string(), name: z.string()}))
     .mutation(async ({input}) => {
         input.name = input.name.toLowerCase().replace(" ", "-");
-        await prisma.tag.create({ data: { userId: input.userId, name: input.name}});
+        await prisma.tag.create({ data: { name: input.name}});
     }),
 
     delete: protectedProcedure

@@ -1,3 +1,4 @@
+import { Question, QuestionContent } from "@prisma/client";
 import { z } from "zod";
 
 import {
@@ -6,19 +7,33 @@ import {
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
 
+
 export const questionRouter = createTRPCRouter({
 
 
     getQuestions: protectedProcedure
     .input(z.object({ userId: z.string()}))
     .query(async ({ input }) => {
-        return await prisma.tag.findMany({ 
+        return await prisma.question.findMany({ 
             where: { 
                 userId: { 
                     equals: input?.userId
                 }
             }
         });
+    }),
+
+    getQuestionDetails: protectedProcedure
+    .input(z.object({ id: z.string()}))
+    .query(async ({ input }) => {
+        return await prisma.question.findUnique({
+            where:{
+                id: input.id
+            },
+            include: {
+                questionContent: true,
+            },
+        })
     }),
 
     searchQuestions: protectedProcedure
@@ -69,6 +84,8 @@ export const questionRouter = createTRPCRouter({
         const result = await prisma.question.create({ data: { userId: input.userId, title: input.title}});
 
         await prisma.questionContent.create({ data: { content: input.content, questionId: result.id }});
+
+        return result;
     }),
 
     delete: protectedProcedure
