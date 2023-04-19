@@ -1,37 +1,77 @@
 import { type NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Question } from "@prisma/client";
-
+import  Select, { ActionMeta, GroupBase, MultiValue, OnChangeValue, OptionsOrGroups }  from 'react-select';
+import { Option } from "~/utils/selectOptions";
+import makeAnimated from 'react-select/animated';
 const QuestionsCreate: NextPage = () => {
   const { data: sessionData } = useSession({ required: true,
     onUnauthenticated() {
         void signIn();
     },});
 
+  const { data: tagOptions} = api.tag.getTagDropdown.useQuery();
     
   const ctx = api.useContext();
   const router = useRouter();
-
+  const animatedComponents = makeAnimated();
   const createQuestion = api.question.create.useMutation({
     onSuccess: (data) => {
       setTitle("");
       setContent("");
+      setError("");
       void router.push(`/questions/edit/${data.id}`);
     }
   });
 
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [error, setError] = useState("");
+  const showError = () =>{
+    setError("You need to select at least 1 tag");
+  }
+  const [options, setOption] = useState<Option[]>([]);
+  const [selectedValue, setSelectedValue] = useState<Option[]>([]);
   
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    createQuestion.mutate({title: title, content: content, userId: sessionData?.user?.id as string});
+
+    const count = selectedValue?.length;
+    console.log(count);
+    if(count > 0){
+      const tagIdList: string[] = [];
+    
+      for (let index = 0; index < count; index++) {
+        const tag = selectedValue[index];
+        tagIdList.push(tag?.value as string);
+      }
+      createQuestion.mutate({title: title, content: content, userId: sessionData?.user?.id as string, tagsId: tagIdList});
+    }else{
+      showError();
+      console.log(error);
+    }
+    
   }
 
+  const onSelectValue = (option: MultiValue<Option>, actionMeta: ActionMeta<Option>) => {
+    const value: Option[] = [];
+
+    for (let index = 0; index < option.length; index++) {
+      const element = option[index] as Option;
+      value.push(element);
+    }
+    setSelectedValue(value);
+  }
+
+
+  useEffect(() => {
+    console.log(error);
+    setOption(tagOptions as Option[]);
+  },[error, tagOptions]);
+  
   return (
     <>
       <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
@@ -42,6 +82,18 @@ const QuestionsCreate: NextPage = () => {
                 <h4 className="text-4xl">
                   Create new question
                 </h4>
+                <h4 className="text-red-600">{error}</h4>
+                <Select
+                  className="w-1/2 text-gray-900"
+                  components={animatedComponents}
+                  value={selectedValue}
+                  isMulti={true}
+                  closeMenuOnSelect={false}
+                  options={options}
+                  onChange={onSelectValue}
+                  placeholder={"Select tags..."}
+                />
+                
                 <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
                   <div className=" shadow-sm -space-y-px">
                     <div>

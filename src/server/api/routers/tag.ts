@@ -1,12 +1,25 @@
 import { z } from "zod";
-
+import { Option } from "~/utils/selectOptions";
 import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { Tag } from "@prisma/client";
 
 export const tagRouter = createTRPCRouter({
+
+    getTagDropdown: protectedProcedure
+    .query(async () => {
+        const tags =  await prisma.tag.findMany({ });
+        const options: Option[] = [];
+        for (let index = 0; index < tags.length; index++) {
+            const tag = tags[index] as Tag;
+            options.push({ label: tag.name, value: tag.id });
+        }
+        console.log(options);
+        return options;
+    }),
 
     getRandomTags: protectedProcedure
     .input(z.object({ amount: z.number()}))

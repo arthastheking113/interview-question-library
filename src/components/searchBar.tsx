@@ -98,9 +98,9 @@ export const SearchBar = () => {
                                 </div>
                                 )
                             })}
-                                
-                                
                             </div>
+
+                            
                             <div className="block bg-gray-200 text-sm text-right py-2 px-3 -mx-3 -mb-2 rounded-b-lg">
                                 <button 
                                 onClick={() => setSearch([])}

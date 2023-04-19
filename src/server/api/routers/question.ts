@@ -32,6 +32,11 @@ export const questionRouter = createTRPCRouter({
             },
             include: {
                 questionContent: true,
+                tags: {
+                    include:{
+                        tag: true
+                    }
+                }
             },
         })
     }),
@@ -79,14 +84,52 @@ export const questionRouter = createTRPCRouter({
     }),
 
     create: protectedProcedure
-    .input(z.object({userId: z.string(), title: z.string(), content: z.string()}))
+    .input(z.object({userId: z.string(), title: z.string(), content: z.string(), tagsId: z.string().array()}))
     .mutation(async ({input}) => {
         const result = await prisma.question.create({ data: { userId: input.userId, title: input.title}});
 
         await prisma.questionContent.create({ data: { content: input.content, questionId: result.id }});
 
+        for (let i = 0; i < input.tagsId.length; i++) {
+            const value = input.tagsId[i];
+            await prisma.questionTag.create({ data: { questionId: result.id, tagId: value as string }});
+        }
+        
         return result;
     }),
+
+    
+    update: protectedProcedure
+    .input(z.object({id: z.string(), title: z.string(), content: z.string(), tagsId: z.string().array()}))
+    .mutation(async ({input}) => {
+        await prisma.question.update({ 
+            where:{
+                id: input.id
+            },
+            data: { title: input.title}
+        });
+
+        await prisma.questionContent.update({ 
+            where:{
+                questionId: input.id
+            },
+            data: { content: input.content }
+        });
+
+        await prisma.questionTag.delete({
+            where: {
+                questionId: input.id,
+            }
+        });
+
+        for (let i = 0; i < input.tagsId.length; i++) {
+            const value = input.tagsId[i];
+            await prisma.questionTag.create({ data: { questionId: input.id, tagId: value as string }});
+        }
+
+    }),
+    
+
 
     delete: protectedProcedure
     .input(z.object({id: z.string()}))
