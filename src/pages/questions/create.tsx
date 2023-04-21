@@ -82,7 +82,10 @@ const QuestionsCreate: NextPage = () => {
                 <h4 className="text-4xl">
                   Create new question
                 </h4>
-                <h4 className="text-red-600">{error}</h4>
+                
+                {error != "" &&
+                  <h4 className="text-red-600">{error}</h4>
+                }
                 <Select
                   className="w-1/2 text-gray-900"
                   components={animatedComponents}
