@@ -1,4 +1,4 @@
-import { type NextPage } from "next";
+import { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { FormEvent, useState } from "react";

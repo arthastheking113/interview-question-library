@@ -90,10 +90,12 @@ export const questionRouter = createTRPCRouter({
 
         await prisma.questionContent.create({ data: { content: input.content, questionId: result.id }});
 
-        for (let i = 0; i < input.tagsId.length; i++) {
-            const value = input.tagsId[i];
-            await prisma.questionTag.create({ data: { questionId: result.id, tagId: value as string }});
-        }
+        const tagData = input.tagsId.map((tagId) => ({
+            questionId: result.id, 
+            tagId: tagId as string
+        }));
+        console.log(tagData);
+        await prisma.questionTag.createMany({ data: tagData});
         
         return result;
     }),
