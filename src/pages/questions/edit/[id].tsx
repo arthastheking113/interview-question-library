@@ -1,11 +1,13 @@
-import { type NextPage } from "next";
+import { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useState } from "react";
-import { Option } from "~/utils/selectOptions";
 import { QuestionTag, Tag } from "@prisma/client";
+import  Select, { ActionMeta, GroupBase, MultiValue, OnChangeValue, OptionsOrGroups }  from 'react-select';
+import { Option } from "~/utils/selectOptions";
+import makeAnimated from 'react-select/animated';
 
 const QuestionsEdit: NextPage = () => {
   const ctx = api.useContext();
@@ -18,6 +20,7 @@ const QuestionsEdit: NextPage = () => {
   const { data: question} = api.question.getQuestionDetails.useQuery({ id: id as string });
   const { data: tagOptions} = api.tag.getTagDropdown.useQuery();
   
+  const animatedComponents = makeAnimated();
   const tagList = question?.tags as (QuestionTag & { tag: Tag; })[];
   const tagCount = tagList?.length;
   const selectedOptions:Option[] = [];
@@ -72,6 +75,15 @@ const QuestionsEdit: NextPage = () => {
   const removeQuestion = (id: string) => {
     deleteQuestion.mutate({id: id});
   }
+  const onSelectValue = (option: MultiValue<Option>, actionMeta: ActionMeta<Option>) => {
+    const value: Option[] = [];
+
+    for (let index = 0; index < option.length; index++) {
+      const element = option[index] as Option;
+      value.push(element);
+    }
+    setSelectedValue(value);
+  }
 
   return (
     <>
@@ -83,6 +95,16 @@ const QuestionsEdit: NextPage = () => {
                 <h4 className="text-4xl">
                   Edit question
                 </h4>
+                <Select
+                  className="w-1/2 text-gray-900"
+                  components={animatedComponents}
+                  value={selectedValue}
+                  isMulti={true}
+                  closeMenuOnSelect={false}
+                  options={options}
+                  onChange={onSelectValue}
+                  placeholder={"Select tags..."}
+                />
                 <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
                   <div className=" shadow-sm -space-y-px">
                     <div>
