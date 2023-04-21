@@ -4,7 +4,7 @@ import { api } from "~/utils/api";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormEvent, useEffect, useState } from "react";
-import { QuestionTag, Tag } from "@prisma/client";
+import { Answer, QuestionTag, Tag } from "@prisma/client";
 import  Select, { ActionMeta, GroupBase, MultiValue, OnChangeValue, OptionsOrGroups }  from 'react-select';
 import { Option } from "~/utils/selectOptions";
 import makeAnimated from 'react-select/animated';
@@ -32,12 +32,6 @@ const QuestionsEdit: NextPage = () => {
     selectedOptions.push({ label: questionTag.tag.name, value: questionTag.tag.id});
   }
 
-  useEffect(() => {
-    setTitle(question?.title as string);
-    setContent(question?.questionContent?.content as string);
-    setSelectedValue(selectedOptions);
-    setOption(tagOptions as Option[]);
-  },[]);
 
   const deleteQuestion = api.question.delete.useMutation({
     onSuccess: () => {
@@ -53,6 +47,7 @@ const QuestionsEdit: NextPage = () => {
   
   const [options, setOption] = useState<Option[]>([]);
   const [selectedValue, setSelectedValue] = useState<Option[]>([]);
+  const [existingAnswers, setExistingAnswers] = useState<Answer[]>([]);
   
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -85,116 +80,152 @@ const QuestionsEdit: NextPage = () => {
     setSelectedValue(value);
   }
 
+  useEffect(() => {
+    setTitle(question?.title as string);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    setContent(question?.questionContent?.content as string);
+    setSelectedValue(selectedOptions);
+    setOption(tagOptions as Option[]);
+    setExistingAnswers(question?.answer as Answer[]);
+  },[title, content, answer, existingAnswers]);
   return (
     <>
-      <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
-        {(() => {
-          if (sessionData != null) {
-            return (
-              <>
-                <h4 className="text-4xl">
-                  Edit question
-                </h4>
-                <Select
-                  className="w-1/2 text-gray-900"
-                  components={animatedComponents}
-                  value={selectedValue}
-                  isMulti={true}
-                  closeMenuOnSelect={false}
-                  options={options}
-                  onChange={onSelectValue}
-                  placeholder={"Select tags..."}
+    <div className="grid grid-cols-2 gap-4 w-full">
+      <div>
+        <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
+          {(() => {
+            if (sessionData != null) {
+              return (
+                <>
+                  <h4 className="text-4xl">
+                    Edit question
+                  </h4>
+                  <Select
+                    className="w-full text-gray-900"
+                    components={animatedComponents}
+                    value={selectedValue}
+                    isMulti={true}
+                    closeMenuOnSelect={false}
+                    options={options}
+                    onChange={onSelectValue}
+                    placeholder={"Select tags..."}
+                  />
+                  <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
+                    <div className=" shadow-sm -space-y-px">
+                      <div>
+                        <input
+                          type="text"
+                          required
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="appearance-none rounded-none relative block
+                          w-full px-3 py-2 border border-gray-300
+                          placeholder-gray-500 text-gray-900
+                          focus:outline-none focus:ring-indigo-500
+                          focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="Question title"
+                        />
+                      </div>
+                    </div>
+                    <div className=" shadow-sm -space-y-px">
+                      <div>
+                        <textarea
+                          required
+                          rows={10}
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                          className="appearance-none rounded-none relative block
+                          w-full px-3 py-2 border border-gray-300
+                          placeholder-gray-500 text-gray-900
+                          focus:outline-none focus:ring-indigo-500
+                          focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="Question Content"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        type="submit"
+                        className="group relative w-full flex justify-center
+                        py-2 px-4 border border-transparent text-sm font-medium
+                        rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+                        focus:outline-none focus:ring-2 focus:ring-offset-2
+                        focus:ring-indigo-500"
+                      >
+                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                          
+                        </span>
+                        Update
+                      </button>
+                    </div>
+                  </form>
+                </>
+              )
+            }
+          })()}
+          
+          <h4 className="text-4xl mt-4">Add answer</h4>
+          <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmitAnswer(e)}>
+            <div className=" shadow-sm -space-y-px">
+              <div>
+                <textarea
+                  required
+                  rows={10}
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  className="appearance-none rounded-none relative block
+                  w-full px-3 py-2 border border-gray-300
+                  placeholder-gray-500 text-gray-900
+                  focus:outline-none focus:ring-indigo-500
+                  focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Question Content"
                 />
-                <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
-                  <div className=" shadow-sm -space-y-px">
-                    <div>
-                      <input
-                        type="text"
-                        required
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="appearance-none rounded-none relative block
-                        w-full px-3 py-2 border border-gray-300
-                        placeholder-gray-500 text-gray-900
-                        focus:outline-none focus:ring-indigo-500
-                        focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Question title"
-                      />
-                    </div>
-                  </div>
-                  <div className=" shadow-sm -space-y-px">
-                    <div>
-                      <textarea
-                        required
-                        rows={10}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="appearance-none rounded-none relative block
-                        w-full px-3 py-2 border border-gray-300
-                        placeholder-gray-500 text-gray-900
-                        focus:outline-none focus:ring-indigo-500
-                        focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Question Content"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <button
-                      type="submit"
-                      className="group relative w-full flex justify-center
-                      py-2 px-4 border border-transparent text-sm font-medium
-                      rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-                      focus:outline-none focus:ring-2 focus:ring-offset-2
-                      focus:ring-indigo-500"
-                    >
-                      <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                        
-                      </span>
-                      Update
-                    </button>
-                  </div>
-                </form>
-              </>
-            )
-          }
-        })()}
-        
-        <h4 className="text-4xl mt-4">Add answer</h4>
-        <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmitAnswer(e)}>
-          <div className=" shadow-sm -space-y-px">
-            <div>
-              <textarea
-                required
-                rows={10}
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                className="appearance-none rounded-none relative block
-                w-full px-3 py-2 border border-gray-300
-                placeholder-gray-500 text-gray-900
-                focus:outline-none focus:ring-indigo-500
-                focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Question Content"
-              />
+              </div>
             </div>
-          </div>
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center
-              py-2 px-4 border border-transparent text-sm font-medium
-              rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-              focus:outline-none focus:ring-2 focus:ring-offset-2
-              focus:ring-indigo-500"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                
-              </span>
-              Add
-            </button>
-          </div>
-        </form>
-
+            <div>
+              <button
+                type="submit"
+                className="group relative w-full flex justify-center
+                py-2 px-4 border border-transparent text-sm font-medium
+                rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+                focus:outline-none focus:ring-2 focus:ring-offset-2
+                focus:ring-indigo-500"
+              >
+                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                  
+                </span>
+                Add
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
+      
+      <div>
+      <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
+          {(() => {
+            if (sessionData != null) {
+              return (
+                <>
+                  <h4 className="text-4xl mb-4">
+                    Existing Answers
+                  </h4>
+                  {existingAnswers?.map(function(item, i){
+                    return (
+                    <div key={i} className="">
+                      {item.content}
+                    </div>
+                    )
+                  })}
+                </>
+              )
+            }
+          })()}
+          
+        </div>
+      </div>
+    </div>
+      
     </>
     
   );

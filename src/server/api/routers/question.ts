@@ -36,7 +36,8 @@ export const questionRouter = createTRPCRouter({
                     include:{
                         tag: true
                     }
-                }
+                },
+                answer: true
             },
         })
     }),
@@ -92,7 +93,7 @@ export const questionRouter = createTRPCRouter({
 
         const tagData = input.tagsId.map((tagId) => ({
             questionId: result.id, 
-            tagId: tagId as string
+            tagId: tagId
         }));
         console.log(tagData);
         await prisma.questionTag.createMany({ data: tagData});
@@ -118,7 +119,7 @@ export const questionRouter = createTRPCRouter({
             data: { content: input.content }
         });
 
-        await prisma.questionTag.delete({
+        await prisma.questionTag.deleteMany({
             where: {
                 questionId: input.id,
             }
