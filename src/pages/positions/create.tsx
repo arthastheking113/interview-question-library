@@ -15,10 +15,10 @@ const PositionCreate: NextPage = () => {
   const router = useRouter();
 
   const createPosition = api.position.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
       setTitle("");
       setContent("");
-      void router.push("/positions");
+      void router.push(`/positions/edit/${data.id}`);
     }
   });
 
@@ -54,7 +54,7 @@ const PositionCreate: NextPage = () => {
                         placeholder-gray-500 text-gray-900
                         focus:outline-none focus:ring-indigo-500
                         focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Question title"
+                        placeholder="Position title"
                       />
                     </div>
                   </div>
@@ -70,7 +70,7 @@ const PositionCreate: NextPage = () => {
                         placeholder-gray-500 text-gray-900
                         focus:outline-none focus:ring-indigo-500
                         focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Question Content"
+                        placeholder="Position Content"
                       />
                     </div>
                   </div>

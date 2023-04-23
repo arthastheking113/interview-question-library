@@ -11,6 +11,16 @@ const Position: NextPage = () => {
   const { data: questions} = api.position.getAllPositions.useQuery();
   const ctx = api.useContext();
 
+  const deletePosition = api.question.delete.useMutation({
+    onSuccess: () => {
+      void ctx.position.getAllPositions.invalidate();
+    }
+  })
+
+  const removePosition = (id: string) => {
+    deletePosition.mutate({id: id});
+  }
+
 
   return (
     <>
@@ -19,7 +29,7 @@ const Position: NextPage = () => {
           if (sessionData != null) {
             return (
               <>
-                <Link className="bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded-full" href="/questions/create">
+                <Link className="bg-blue-500 hover:bg-blue-700 text-white font-bold my-2 py-2 px-4 rounded-full" href="/positions/create">
                   Create new position
                 </Link>
               </>
@@ -30,7 +40,8 @@ const Position: NextPage = () => {
         {questions?.map(function(item, i){
           return (
           <p className="text-lg" key={i}>
-            {item.title} <span className="text-blue-400 cursor-pointer"><Link href={`/questions/edit/${item.id}`}> View </Link></span> 
+            {item.title} <span className="text-blue-400 cursor-pointer"><Link href={`/positions/edit/${item.id}`}> Edit </Link></span> 
+            <span onClick={() => removePosition(item.id)} className="text-red-400 cursor-pointer">x</span>
           </p>
           )
         })}

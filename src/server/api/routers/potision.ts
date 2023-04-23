@@ -41,6 +41,7 @@ export const positionRouter = createTRPCRouter({
                 id: input.id
             },
             include: {
+                positionContent: true,
                 positionQuestion: {
                     select:{
                         question: {
@@ -68,16 +69,26 @@ export const positionRouter = createTRPCRouter({
               id: input.id,
             },
             data: {
-                title: input.title,
-                description: input.description
+                title: input.title
             },
           })
+
+        await prisma.positionContent.update({
+            where:{
+                positionId: input.id
+            },
+            data:{
+                description: input.description
+            }
+        })
     }),
 
     create: protectedProcedure
     .input(z.object({userId: z.string(), title: z.string(), description: z.string()}))
     .mutation(async ({input}) => {
-        const result = await prisma.position.create({ data: { title: input.title, description: input.description, userId: input.userId }});
+        const result = await prisma.position.create({ data: { title: input.title, userId: input.userId }});
+
+        await prisma.positionContent.create({data: { description: input.description, positionId: result.id }});
 
         return result;
     }),
@@ -86,9 +97,14 @@ export const positionRouter = createTRPCRouter({
     .input(z.object({id: z.string()}))
     .mutation(async ({input}) => {
 
-        await prisma.positionQuestion.delete({
+        await prisma.positionQuestion.deleteMany({
             where: {
                 positionId: input.id
+            }
+        });
+        await prisma.positionContent.delete({
+            where: {
+                positionId: input.id,
             }
         });
 

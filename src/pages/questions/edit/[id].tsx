@@ -38,6 +38,23 @@ const QuestionsEdit: NextPage = () => {
       void ctx.question.getQuestions.invalidate({userId: sessionData?.user?.id as string});
     }
   })
+  const deleteAnswer = api.answer.delete.useMutation({
+    onSuccess: () => {
+      void ctx.question.getQuestionDetails.invalidate({ id: id as string });
+    }
+  })
+  
+  const onClickDeleteAnswer = (id: string) => {
+    deleteAnswer.mutate({id: id});
+  }
+
+  const createAnswer = api.answer.create.useMutation({
+    onSuccess: () => {
+      void ctx.question.getQuestionDetails.invalidate({ id: id as string });
+      setExistingAnswers(question?.answer as Answer[]);
+      setAnswer("");
+    }
+  })
 
   const updateQuestion = api.question.update.useMutation({});
 
@@ -64,7 +81,7 @@ const QuestionsEdit: NextPage = () => {
 
   const handleSubmitAnswer = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    //updateQuestion.mutate({id: question?.id as string, title: title, content: content });
+    createAnswer.mutate({userId: sessionData?.user?.id as string, content: answer, questionId: question?.id as string});
   }
 
   const removeQuestion = (id: string) => {
@@ -82,89 +99,81 @@ const QuestionsEdit: NextPage = () => {
 
   useEffect(() => {
     setTitle(question?.title as string);
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     setContent(question?.questionContent?.content as string);
     setSelectedValue(selectedOptions);
     setOption(tagOptions as Option[]);
     setExistingAnswers(question?.answer as Answer[]);
-  },[title, content, answer, existingAnswers]);
+  },[question?.answer]);
   return (
     <>
     <div className="grid grid-cols-2 gap-4 w-full">
       <div>
         <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
-          {(() => {
-            if (sessionData != null) {
-              return (
-                <>
-                  <h4 className="text-4xl">
-                    Edit question
-                  </h4>
-                  <Select
-                    className="w-full text-gray-900"
-                    components={animatedComponents}
-                    value={selectedValue}
-                    isMulti={true}
-                    closeMenuOnSelect={false}
-                    options={options}
-                    onChange={onSelectValue}
-                    placeholder={"Select tags..."}
-                  />
-                  <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
-                    <div className=" shadow-sm -space-y-px">
-                      <div>
-                        <input
-                          type="text"
-                          required
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="appearance-none rounded-none relative block
-                          w-full px-3 py-2 border border-gray-300
-                          placeholder-gray-500 text-gray-900
-                          focus:outline-none focus:ring-indigo-500
-                          focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Question title"
-                        />
-                      </div>
-                    </div>
-                    <div className=" shadow-sm -space-y-px">
-                      <div>
-                        <textarea
-                          required
-                          rows={10}
-                          value={content}
-                          onChange={(e) => setContent(e.target.value)}
-                          className="appearance-none rounded-none relative block
-                          w-full px-3 py-2 border border-gray-300
-                          placeholder-gray-500 text-gray-900
-                          focus:outline-none focus:ring-indigo-500
-                          focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Question Content"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <button
-                        type="submit"
-                        className="group relative w-full flex justify-center
-                        py-2 px-4 border border-transparent text-sm font-medium
-                        rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-                        focus:outline-none focus:ring-2 focus:ring-offset-2
-                        focus:ring-indigo-500"
-                      >
-                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                          
-                        </span>
-                        Update
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )
-            }
-          })()}
+          <h4 className="text-4xl">
+            Edit question
+          </h4>
+          <Select
+            className="w-full text-gray-900"
+            components={animatedComponents}
+            value={selectedValue}
+            isMulti={true}
+            closeMenuOnSelect={false}
+            options={options}
+            onChange={onSelectValue}
+            placeholder={"Select tags..."}
+          />
+          <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
+            <div className=" shadow-sm -space-y-px">
+              <div>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="appearance-none rounded-none relative block
+                  w-full px-3 py-2 border border-gray-300
+                  placeholder-gray-500 text-gray-900
+                  focus:outline-none focus:ring-indigo-500
+                  focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Question title"
+                />
+              </div>
+            </div>
+            <div className=" shadow-sm -space-y-px">
+              <div>
+                <textarea
+                  required
+                  rows={10}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="appearance-none rounded-none relative block
+                  w-full px-3 py-2 border border-gray-300
+                  placeholder-gray-500 text-gray-900
+                  focus:outline-none focus:ring-indigo-500
+                  focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Question Content"
+                />
+              </div>
+            </div>
+            <div>
+              <button
+                type="submit"
+                className="group relative w-full flex justify-center
+                py-2 px-4 border border-transparent text-sm font-medium
+                rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+                focus:outline-none focus:ring-2 focus:ring-offset-2
+                focus:ring-indigo-500"
+              >
+                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                  
+                </span>
+                Update
+              </button>
+            </div>
+          </form>
           
           <h4 className="text-4xl mt-4">Add answer</h4>
+          
           <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmitAnswer(e)}>
             <div className=" shadow-sm -space-y-px">
               <div>
@@ -203,24 +212,32 @@ const QuestionsEdit: NextPage = () => {
       
       <div>
       <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
-          {(() => {
-            if (sessionData != null) {
-              return (
-                <>
-                  <h4 className="text-4xl mb-4">
-                    Existing Answers
-                  </h4>
-                  {existingAnswers?.map(function(item, i){
-                    return (
-                    <div key={i} className="">
-                      {item.content}
-                    </div>
-                    )
-                  })}
-                </>
-              )
-            }
-          })()}
+        <h4 className="text-4xl mb-4">
+          Existing Answers
+        </h4>
+        {existingAnswers?.map(function(item, i){
+          return (
+          <div key={i} className="">
+            <button
+              onClick={() => onClickDeleteAnswer(item.id)}
+              type="button"
+              className="group relative w-full flex justify-center
+              py-2 px-4 border border-transparent text-sm font-medium
+              rounded-md text-white bg-red-600 hover:bg-red-700
+              focus:outline-none focus:ring-2 focus:ring-offset-2
+              focus:ring-indigo-500"
+            >
+              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                
+              </span>
+              Delete
+            </button>
+            <div>
+              {item.content}
+            </div>
+          </div>
+          )
+        })}
           
         </div>
       </div>

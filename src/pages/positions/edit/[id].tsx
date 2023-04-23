@@ -3,6 +3,8 @@ import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { FormEvent, useEffect, useState } from "react";
+import { PositionContent, PositionQuestion, Question, QuestionContent, QuestionTag, Tag } from "@prisma/client";
 
 const PositionEdit: NextPage = () => {
   const router = useRouter();
@@ -11,11 +13,28 @@ const PositionEdit: NextPage = () => {
     onUnauthenticated() {
         void signIn();
     },});
+
+  type PositionQuestionDetails = { question: Question & { questionContent: QuestionContent | null; tags: (QuestionTag & { tag: Tag; })[]; }; }
+  
+  const [existingQuestions, setExistingQuestions] = useState<PositionQuestionDetails[]>([]);
   const { data: position} = api.position.getPositionDetails.useQuery({ id: id as string });
+  const updatePosition = api.position.update.useMutation({});
   const ctx = api.useContext();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    
+    updatePosition.mutate({id: position?.id as string, title: title, description: content });
+  }
 
-
-
+  useEffect(() => {
+    setTitle(position?.title as string);
+    setContent(position?.positionContent?.description as string);
+    setExistingQuestions(position?.positionQuestion as PositionQuestionDetails[])
+  },[]);
+  
   return (
     <>
       <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
@@ -23,11 +42,89 @@ const PositionEdit: NextPage = () => {
           if (sessionData != null) {
             return (
               <>
-                <h4 className="text-4xl">Edit question</h4>
+              <div className="grid grid-cols-2 gap-4 w-full">
+                <div>
+                  <h4 className="text-4xl">Edit Position</h4>
 
-                <h4 className="text-4xl">{position?.title}</h4>
+                  <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
+                    <div className=" shadow-sm -space-y-px">
+                      <div>
+                        <input
+                          type="text"
+                          required
+                          value={title}
+                          onChange={(e) => setTitle(e.target.value)}
+                          className="appearance-none rounded-none relative block
+                          w-full px-3 py-2 border border-gray-300
+                          placeholder-gray-500 text-gray-900
+                          focus:outline-none focus:ring-indigo-500
+                          focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="Question title"
+                        />
+                      </div>
+                    </div>
+                    <div className=" shadow-sm -space-y-px">
+                      <div>
+                        <textarea
+                          required
+                          rows={10}
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                          className="appearance-none rounded-none relative block
+                          w-full px-3 py-2 border border-gray-300
+                          placeholder-gray-500 text-gray-900
+                          focus:outline-none focus:ring-indigo-500
+                          focus:border-indigo-500 focus:z-10 sm:text-sm"
+                          placeholder="Question Content"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        type="submit"
+                        className="group relative w-full flex justify-center
+                        py-2 px-4 border border-transparent text-sm font-medium
+                        rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+                        focus:outline-none focus:ring-2 focus:ring-offset-2
+                        focus:ring-indigo-500"
+                      >
+                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                          
+                        </span>
+                        Update
+                      </button>
+                    </div>
+                  </form>
 
-                <>{position?.description}</>
+                  <div className="mt-6">
+                    <h4 className="text-4xl mb-4">
+                      Search questions
+                    </h4>
+
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-4xl mb-4">
+                    Existing Questions
+                  </h4>
+                  {existingQuestions?.map(function(item, i){
+                    return (
+                    <div key={i} className="">
+                      
+                      <div>
+                        {item.question.title}
+                      </div>
+                      <div>
+                        {item.question.questionContent?.content}
+                      </div>
+                      
+                    </div>
+                    )
+                  })}
+
+                </div>
+              </div>
+                
               </>
             )
           }

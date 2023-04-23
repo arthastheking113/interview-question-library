@@ -153,4 +153,23 @@ export const questionRouter = createTRPCRouter({
         
     }),
 
+
+    addQuestionPosition: protectedProcedure
+    .input(z.object({positionId: z.string(), questionId: z.string()}))
+    .mutation(async ({input}) => {
+
+        const result = await prisma.positionQuestion.create({data: { positionId: input.positionId, questionId: input.questionId, sortOrder: 0}});
+        
+        return result;
+    }),
+
+    removeQuestionPosition: protectedProcedure
+    .input(z.object({id: z.string()}))
+    .mutation(async ({input}) => {
+        await prisma.positionQuestion.delete({
+            where:{
+                id: input.id
+            }
+        })
+    }),
 });

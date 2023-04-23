@@ -15,19 +15,26 @@ generator client {
 model Position {
   id                      String @id @default(cuid())
   title                   String
-  description             String
   positionQuestion        PositionQuestion[]
   userId                  String
   user                    User              @relation(fields: [userId], references: [id])
+  positionContent         PositionContent?
+}
+
+model PositionContent {
+  id                      String @id @default(cuid())
+  description             String
+  positionId              String         @unique
+  position                Position              @relation(fields: [positionId], references: [id])
 }
 
 
 model PositionQuestion {
   id              String @id @default(cuid())
   sortOrder       Int
-  questionId      String            @unique
+  questionId      String            
   question        Question          @relation(fields: [questionId], references: [id])
-  positionId      String            @unique
+  positionId      String            
   position        Position          @relation(fields: [positionId], references: [id])
 }
 
