@@ -25,6 +25,11 @@ const PositionEdit: NextPage = () => {
   
   const { data: position} = api.position.getPositionDetails.useQuery({ id: id as string });
   const updatePosition = api.position.update.useMutation({});
+  const addQuestionToPosition = api.question.addQuestionPosition.useMutation({
+    onSuccess: () => {
+        void ctx.position.getPositionDetails.invalidate({ id: id as string });
+    }
+  });
   const ctx = api.useContext();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -63,16 +68,38 @@ const PositionEdit: NextPage = () => {
     event.preventDefault();
     void ctx.question.searchQuestions.invalidate({ text: question, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
     setSearchQuestions(searchQuestionsResult?.question as SearchQuestionDetails[]);
-    setTotalPage(searchQuestionsResult?.total as number);
+    const totalPageResult = searchQuestionsResult?.total;
+    console.log(totalPageResult);
+    if (totalPageResult) {
+      console.log(totalPageResult);
+      const setTotalPageResult = Math.floor(totalPageResult / pageSize) + 1;
+      console.log(setTotalPageResult)
+      setTotalPage(setTotalPageResult);
+   }
   }
 
+  const goTo =(page:number) =>{
+    setPageIndex(page - 1);
+    void ctx.question.searchQuestions.invalidate({ text: question, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+  }
+
+  const addQuestion = (questionId: string) =>{
+    addQuestionToPosition.mutate({ positionId: id as string, questionId: questionId});
+  }
   useEffect(() => {
     setTitle(position?.title as string);
     setContent(position?.positionContent?.description as string);
-    setExistingQuestions(position?.positionQuestion as PositionQuestionDetails[]);
+    if (position?.positionQuestion){
+      setExistingQuestions(position?.positionQuestion as PositionQuestionDetails[]);
+    }
     setSearchQuestions(searchQuestionsResult?.question as SearchQuestionDetails[]);
-    setTotalPage(searchQuestionsResult?.total as number);
-  },[searchQuestionsResult?.question]);
+    const totalPageResult = searchQuestionsResult?.total;
+    if (totalPageResult) {
+      const setTotalPageResult = Math.floor(totalPageResult / pageSize) + 1;
+      setTotalPage(setTotalPageResult);
+   }
+    
+  },[searchQuestionsResult?.question, pageIndex, position?.positionQuestion]);
   
   return (
     <>
@@ -226,6 +253,11 @@ const PositionEdit: NextPage = () => {
                                   <>
                                     <div key={i} className="bg-white rounded shadow border p-6 w-full mb-2">
                                       <h5 className="text-gray-700 text-3xl mb-4 mt-0">{item.title}</h5>
+                                      <button 
+                                      onClick={() => addQuestion(item.id)}
+                                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
+                                        Add question
+                                      </button>
                                     </div>
                                   </>
                                   )
@@ -236,26 +268,31 @@ const PositionEdit: NextPage = () => {
 
                               <div className="container mx-auto px-4">
                                 <nav className="flex flex-row flex-nowrap justify-between md:justify-center items-center" aria-label="Pagination">
-                                  <a className="flex w-10 h-10 mr-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Previous Page">
-                                      <span className="sr-only">Previous Page</span>
-                                      <svg className="block w-4 h-4 fill-current" viewBox="0 0 256 512" aria-hidden="true" role="presentation">
-                                          <path d="M238.475 475.535l7.071-7.07c4.686-4.686 4.686-12.284 0-16.971L50.053 256 245.546 60.506c4.686-4.686 4.686-12.284 0-16.971l-7.071-7.07c-4.686-4.686-12.284-4.686-16.97 0L10.454 247.515c-4.686 4.686-4.686 12.284 0 16.971l211.051 211.05c4.686 4.686 12.284 4.686 16.97-.001z"></path>
-                                      </svg>
-                                  </a>
+                                  {pageIndex > 0 && 
+                                    <a onClick={() => goTo(pageIndex - 1)} className="flex w-10 h-10 mr-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Previous Page">
+                                        <span className="sr-only">Previous Page</span>
+                                        <svg className="block w-4 h-4 fill-current" viewBox="0 0 256 512" aria-hidden="true" role="presentation">
+                                            <path d="M238.475 475.535l7.071-7.07c4.686-4.686 4.686-12.284 0-16.971L50.053 256 245.546 60.506c4.686-4.686 4.686-12.284 0-16.971l-7.071-7.07c-4.686-4.686-12.284-4.686-16.97 0L10.454 247.515c-4.686 4.686-4.686 12.284 0 16.971l211.051 211.05c4.686 4.686 12.284 4.686 16.97-.001z"></path>
+                                        </svg>
+                                    </a>
+                                  }
+                                  
                                   {Array.apply(0, Array(totalPage)).map(function (x, i) {
                                     return (
-                                      <a key={i} className="hidden md:flex w-10 h-10 mx-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Page 1">
+                                      <a key={i} onClick={() => goTo(i)}  className="hidden md:flex w-10 h-10 mx-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Page 1">
                                         {i + 1}
                                     </a>
                                     );
                                   })}
-                                  
-                                  <a className="flex w-10 h-10 ml-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Next Page">
-                                      <span className="sr-only">Next Page</span>
-                                      <svg className="block w-4 h-4 fill-current" viewBox="0 0 256 512" aria-hidden="true" role="presentation">
-                                          <path d="M17.525 36.465l-7.071 7.07c-4.686 4.686-4.686 12.284 0 16.971L205.947 256 10.454 451.494c-4.686 4.686-4.686 12.284 0 16.971l7.071 7.07c4.686 4.686 12.284 4.686 16.97 0l211.051-211.05c4.686-4.686 4.686-12.284 0-16.971L34.495 36.465c-4.686-4.687-12.284-4.687-16.97 0z"></path>
-                                      </svg>
-                                  </a>
+
+                                  {pageIndex < (totalPage - 1) && 
+                                      <a onClick={() => goTo(pageIndex + 1)} className="flex w-10 h-10 ml-1 justify-center items-center rounded-full border border-gray-200 bg-white text-black hover:border-gray-300" href="#" title="Next Page">
+                                        <span className="sr-only">Next Page</span>
+                                          <svg className="block w-4 h-4 fill-current" viewBox="0 0 256 512" aria-hidden="true" role="presentation">
+                                              <path d="M17.525 36.465l-7.071 7.07c-4.686 4.686-4.686 12.284 0 16.971L205.947 256 10.454 451.494c-4.686 4.686-4.686 12.284 0 16.971l7.071 7.07c4.686 4.686 12.284 4.686 16.97 0l211.051-211.05c4.686-4.686 4.686-12.284 0-16.971L34.495 36.465c-4.686-4.687-12.284-4.687-16.97 0z"></path>
+                                          </svg>
+                                      </a>
+                                  }
                                 </nav>
                               </div>
                           </div>
@@ -269,10 +306,10 @@ const PositionEdit: NextPage = () => {
                   </h4>
                   {existingQuestions?.map(function(item, i){
                     return (
-                    <div key={i} className="">
+                    <div key={i} className="mb-4">
                       
                       <div>
-                        {item.question.title}
+                        {i + 1}/ {item.question.title}
                       </div>
                       <div>
                         {item.question.questionContent?.content}
