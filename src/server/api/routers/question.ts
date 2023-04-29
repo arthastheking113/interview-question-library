@@ -6,6 +6,8 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { prisma } from "~/server/db";
+import { PositionQuestionDetails } from "~/utils/PositionQuestionsDetails";
+import { SearchQuestionDetails } from "~/utils/searchQuestionDetails";
 
 
 export const questionRouter = createTRPCRouter({
@@ -46,7 +48,7 @@ export const questionRouter = createTRPCRouter({
     .input(z.object({ text: z.string(), tagId: z.array(z.string()), pageIndex: z.number(), pageSize: z.number()}))
     .query(async ({ input }) => {
 
-        return await prisma.question.findMany({ 
+        const question: SearchQuestionDetails[] =  await prisma.question.findMany({ 
             where: { 
                 OR:[
                     {
@@ -79,9 +81,51 @@ export const questionRouter = createTRPCRouter({
                 updatedAt: "desc"
             },
             include:{
-                tags: true
+                tags: {
+                    include: {
+                        tag: true
+                    }
+                },
+                questionContent: true
             }
         });
+
+        const count = await prisma.question.count({ 
+            where: { 
+                OR:[
+                    {
+                        title: { 
+                            contains: input?.text
+                        }
+                    },
+                    {
+                        questionContent:{
+                            content:{
+                                contains: input?.text
+                            }
+                        }
+                    },
+                    {
+                        tags:{
+                            every: {
+                                tagId: {
+                                    in: input.tagId
+                                }
+                            }
+                        }
+                    }
+                ]
+                
+            }
+        });
+        // (Question & {
+        //     questionContent: QuestionContent | null;
+        //     tags: (QuestionTag & {
+        //         tag: Tag;
+        //     })[];
+        // })[]
+        
+        return { question, total: count }
     }),
 
     create: protectedProcedure
