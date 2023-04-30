@@ -188,7 +188,19 @@ export const questionRouter = createTRPCRouter({
     .input(z.object({id: z.string()}))
     .mutation(async ({input}) => {
 
-        await prisma.questionContent.delete({
+        await prisma.answer.deleteMany({
+            where: {
+                questionId: input.id
+            }
+        });
+
+        await prisma.questionTag.deleteMany({
+            where: {
+                questionId: input.id
+            }
+        });
+
+        await prisma.questionContent.deleteMany({
             where: {
                 questionId: input.id
             }
