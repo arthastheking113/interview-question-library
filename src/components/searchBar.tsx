@@ -76,7 +76,7 @@ export const SearchBar = () => {
                                         <h5 className="text-gray-700 text-3xl mb-4 mt-0">{item.title}</h5>
                                         <div className="block text-sm text-right py-2 px-3 -mx-3 -mb-2 rounded-b-lg">
                                             <Link 
-                                            href={`/position/view/${item.id}`}
+                                            href={`/positions/view/${item.id}`}
                                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50 text-right">
                                                 View
                                             </Link>
