@@ -44,6 +44,7 @@ export const positionRouter = createTRPCRouter({
                 positionContent: true,
                 positionQuestion: {
                     select:{
+                        id: true,
                         question: {
                             include:{
                                 questionContent: true,

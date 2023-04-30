@@ -30,6 +30,11 @@ const PositionEdit: NextPage = () => {
         void ctx.position.getPositionDetails.invalidate({ id: id as string });
     }
   });
+  const deleteQuestionPosition = api.question.removeQuestionPosition.useMutation({
+    onSuccess: () => {
+        void ctx.position.getPositionDetails.invalidate({ id: id as string });
+    }
+  });
   const ctx = api.useContext();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -85,6 +90,10 @@ const PositionEdit: NextPage = () => {
 
   const addQuestion = (questionId: string) =>{
     addQuestionToPosition.mutate({ positionId: id as string, questionId: questionId});
+  }
+
+  const removeQuestion = (positionQuestionId: string) => {
+    deleteQuestionPosition.mutate({ id: positionQuestionId});
   }
   useEffect(() => {
     setTitle(position?.title as string);
@@ -310,6 +319,7 @@ const PositionEdit: NextPage = () => {
                       
                       <div>
                         {i + 1}/ {item.question.title}
+                        <span onClick={() => removeQuestion(item.id)} className="text-red-400 cursor-pointer">x</span>
                       </div>
                       <div>
                         {item.question.questionContent?.content}
