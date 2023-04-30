@@ -8,6 +8,8 @@ import { Answer, QuestionTag, Tag } from "@prisma/client";
 import  Select, { ActionMeta, GroupBase, MultiValue, OnChangeValue, OptionsOrGroups }  from 'react-select';
 import { Option } from "~/utils/selectOptions";
 import makeAnimated from 'react-select/animated';
+import { MDEditor } from "~/components/markdownEditor";
+import { ViewMarkDown } from "~/components/viewMarkDown";
 
 const QuestionsEdit: NextPage = () => {
   const ctx = api.useContext();
@@ -106,89 +108,70 @@ const QuestionsEdit: NextPage = () => {
   },[question?.answer]);
   return (
     <>
-    <div className="grid grid-cols-2 gap-4 w-full">
+    <div className="w-full">
+      <h4 className="text-4xl text-white">
+              Edit question
+      </h4>
+      <Select
+        className="w-full text-gray-900 mt-4"
+        components={animatedComponents}
+        value={selectedValue}
+        isMulti={true}
+        closeMenuOnSelect={false}
+        options={options}
+        onChange={onSelectValue}
+        placeholder={"Select tags..."}
+      />
+      <form className="space-y-2 w-full mt-4" onSubmit={(e) => handleSubmit(e)}>
+        <div className=" shadow-sm -space-y-px">
+          <div>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="appearance-none rounded-none relative block
+              w-full px-3 py-2 border border-gray-300
+              placeholder-gray-500 text-gray-900
+              focus:outline-none focus:ring-indigo-500
+              focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Question title"
+            />
+          </div>
+        </div>
+        <div className=" shadow-sm -space-y-px mt-4 pt-4">
+          <div>
+            <MDEditor height={500} value={content} onChange={(e) => setContent(e as string)} />
+          </div>
+        </div>
+        <div>
+          <button
+            type="submit"
+            className="group relative w-full flex justify-center
+            py-2 px-4 border border-transparent text-sm font-medium
+            rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+            focus:outline-none focus:ring-2 focus:ring-offset-2
+            focus:ring-indigo-500"
+          >
+            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+              
+            </span>
+            Update
+          </button>
+        </div>
+      </form>
+    </div>
+    <div className="w-full">
       <div>
         <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
-          <h4 className="text-4xl">
-            Edit question
-          </h4>
-          <Select
-            className="w-full text-gray-900"
-            components={animatedComponents}
-            value={selectedValue}
-            isMulti={true}
-            closeMenuOnSelect={false}
-            options={options}
-            onChange={onSelectValue}
-            placeholder={"Select tags..."}
-          />
-          <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
-            <div className=" shadow-sm -space-y-px">
-              <div>
-                <input
-                  type="text"
-                  required
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="appearance-none rounded-none relative block
-                  w-full px-3 py-2 border border-gray-300
-                  placeholder-gray-500 text-gray-900
-                  focus:outline-none focus:ring-indigo-500
-                  focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Question title"
-                />
-              </div>
-            </div>
-            <div className=" shadow-sm -space-y-px">
-              <div>
-                <textarea
-                  required
-                  rows={10}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  className="appearance-none rounded-none relative block
-                  w-full px-3 py-2 border border-gray-300
-                  placeholder-gray-500 text-gray-900
-                  focus:outline-none focus:ring-indigo-500
-                  focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Question Content"
-                />
-              </div>
-            </div>
-            <div>
-              <button
-                type="submit"
-                className="group relative w-full flex justify-center
-                py-2 px-4 border border-transparent text-sm font-medium
-                rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-                focus:outline-none focus:ring-2 focus:ring-offset-2
-                focus:ring-indigo-500"
-              >
-                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  
-                </span>
-                Update
-              </button>
-            </div>
-          </form>
+          
           
           <h4 className="text-4xl mt-4">Add answer</h4>
           
           <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmitAnswer(e)}>
             <div className=" shadow-sm -space-y-px">
               <div>
-                <textarea
-                  required
-                  rows={10}
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  className="appearance-none rounded-none relative block
-                  w-full px-3 py-2 border border-gray-300
-                  placeholder-gray-500 text-gray-900
-                  focus:outline-none focus:ring-indigo-500
-                  focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Question Content"
-                />
+                <MDEditor height={500} value={answer} onChange={(e) => setAnswer(e as string)} />
               </div>
             </div>
             <div>
@@ -211,7 +194,7 @@ const QuestionsEdit: NextPage = () => {
       </div>
       
       <div>
-      <div className="w-full flex flex-col items-center justify-center gap-4 text-white">
+      <div className="w-full text-white mt-4">
         <h4 className="text-4xl mb-4">
           Existing Answers
         </h4>
@@ -221,7 +204,7 @@ const QuestionsEdit: NextPage = () => {
             <button
               onClick={() => onClickDeleteAnswer(item.id)}
               type="button"
-              className="group relative w-full flex justify-center
+              className="group relative flex justify-center
               py-2 px-4 border border-transparent text-sm font-medium
               rounded-md text-white bg-red-600 hover:bg-red-700
               focus:outline-none focus:ring-2 focus:ring-offset-2
@@ -232,8 +215,9 @@ const QuestionsEdit: NextPage = () => {
               </span>
               Delete
             </button>
-            <div>
-              {item.content}
+            <div className="my-2">
+              {i+1}/
+              <ViewMarkDown value={item.content} ></ViewMarkDown>
             </div>
           </div>
           )

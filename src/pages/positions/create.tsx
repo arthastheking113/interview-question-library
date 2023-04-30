@@ -3,6 +3,7 @@ import { signIn, useSession } from "next-auth/react";
 import { api } from "~/utils/api";
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/router";
+import { MDEditor } from "~/components/markdownEditor";
 
 const PositionCreate: NextPage = () => {
   const { data: sessionData } = useSession({ required: true,
@@ -28,6 +29,7 @@ const PositionCreate: NextPage = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    
     createPosition.mutate({title: title, description: content, userId: sessionData?.user?.id as string});
   }
 
@@ -41,7 +43,7 @@ const PositionCreate: NextPage = () => {
                 <h4 className="text-4xl">
                   Create new position
                 </h4>
-                <form className="mt-1 space-y-2 w-1/2" onSubmit={(e) => handleSubmit(e)}>
+                <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
                   <div className=" shadow-sm -space-y-px">
                     <div>
                       <input
@@ -58,20 +60,9 @@ const PositionCreate: NextPage = () => {
                       />
                     </div>
                   </div>
-                  <div className=" shadow-sm -space-y-px">
+                  <div className="shadow-sm -space-y-px mt-6 pt-6">
                     <div>
-                      <textarea
-                        required
-                        rows={10}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="appearance-none rounded-none relative block
-                        w-full px-3 py-2 border border-gray-300
-                        placeholder-gray-500 text-gray-900
-                        focus:outline-none focus:ring-indigo-500
-                        focus:border-indigo-500 focus:z-10 sm:text-sm"
-                        placeholder="Position Content"
-                      />
+                      <MDEditor height={500} value={content} onChange={(e) => setContent(e as string)} />
                     </div>
                   </div>
                   <div>

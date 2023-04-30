@@ -23,6 +23,11 @@ export const answerRouter = createTRPCRouter({
     update: protectedProcedure
     .input(z.object({id: z.string(), title: z.string(), content: z.string()}))
     .mutation(async ({input}) => {
+
+        if(input.content == null) input.content = "";
+        if(!input.content) input.content = "";
+        
+        
         await prisma.answer.update({
             where: {
               id: input.id,
@@ -36,6 +41,10 @@ export const answerRouter = createTRPCRouter({
     create: protectedProcedure
     .input(z.object({userId: z.string(), questionId: z.string(), content: z.string()}))
     .mutation(async ({input}) => {
+
+        if(input.content == null) input.content = "";
+        if(!input.content) input.content = "";
+
         const result = await prisma.answer.create({ data: { content: input.content, questionId: input.questionId, userId: input.userId }});
 
         return result;

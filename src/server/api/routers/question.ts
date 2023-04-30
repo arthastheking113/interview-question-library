@@ -133,6 +133,9 @@ export const questionRouter = createTRPCRouter({
     .mutation(async ({input}) => {
         const result = await prisma.question.create({ data: { userId: input.userId, title: input.title}});
 
+        if(input.content == null) input.content = "";
+        if(!input.content) input.content = "";
+        
         await prisma.questionContent.create({ data: { content: input.content, questionId: result.id }});
 
         const tagData = input.tagsId.map((tagId) => ({
@@ -156,6 +159,9 @@ export const questionRouter = createTRPCRouter({
             data: { title: input.title}
         });
 
+        if(input.content == null) input.content = "";
+        if(!input.content) input.content = "";
+        
         await prisma.questionContent.update({ 
             where:{
                 questionId: input.id

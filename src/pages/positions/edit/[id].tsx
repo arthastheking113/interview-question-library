@@ -7,6 +7,8 @@ import { FormEvent, useEffect, useState } from "react";
 import { PositionContent, PositionQuestion, Question, QuestionContent, QuestionTag, Tag } from "@prisma/client";
 import { PositionQuestionDetails } from "~/utils/PositionQuestionsDetails";
 import { SearchQuestionDetails } from "~/utils/searchQuestionDetails";
+import { MDEditor } from "~/components/markdownEditor";
+import { ViewMarkDown } from "~/components/viewMarkDown";
 
 const PositionEdit: NextPage = () => {
   const router = useRouter();
@@ -119,59 +121,51 @@ const PositionEdit: NextPage = () => {
           if (sessionData != null) {
             return (
               <>
+              <div className="w-full">
+                <h4 className="text-4xl">Edit Position</h4>
+                <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
+                  <div className=" shadow-sm -space-y-px">
+                    <div>
+                      <input
+                        type="text"
+                        required
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="appearance-none rounded-none relative block
+                        w-full px-3 py-2 border border-gray-300
+                        placeholder-gray-500 text-gray-900
+                        focus:outline-none focus:ring-indigo-500
+                        focus:border-indigo-500 focus:z-10 sm:text-sm"
+                        placeholder="Question title"
+                      />
+                    </div>
+                  </div>
+                  <div className=" shadow-sm -space-y-px pt-6 mt-6">
+                    <div>
+                      <MDEditor height={500} value={content} onChange={(e) => setContent(e as string)} />
+
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      type="submit"
+                      className="group relative w-full flex justify-center
+                      py-2 px-4 border border-transparent text-sm font-medium
+                      rounded-md text-white bg-indigo-600 hover:bg-indigo-700
+                      focus:outline-none focus:ring-2 focus:ring-offset-2
+                      focus:ring-indigo-500"
+                    >
+                      <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                        
+                      </span>
+                      Update
+                    </button>
+                  </div>
+                </form>
+              </div>
               <div className="grid grid-cols-2 gap-4 w-full">
                 <div>
-                  <h4 className="text-4xl">Edit Position</h4>
-
-                  <form className="mt-1 space-y-2 w-full" onSubmit={(e) => handleSubmit(e)}>
-                    <div className=" shadow-sm -space-y-px">
-                      <div>
-                        <input
-                          type="text"
-                          required
-                          value={title}
-                          onChange={(e) => setTitle(e.target.value)}
-                          className="appearance-none rounded-none relative block
-                          w-full px-3 py-2 border border-gray-300
-                          placeholder-gray-500 text-gray-900
-                          focus:outline-none focus:ring-indigo-500
-                          focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Question title"
-                        />
-                      </div>
-                    </div>
-                    <div className=" shadow-sm -space-y-px">
-                      <div>
-                        <textarea
-                          required
-                          rows={10}
-                          value={content}
-                          onChange={(e) => setContent(e.target.value)}
-                          className="appearance-none rounded-none relative block
-                          w-full px-3 py-2 border border-gray-300
-                          placeholder-gray-500 text-gray-900
-                          focus:outline-none focus:ring-indigo-500
-                          focus:border-indigo-500 focus:z-10 sm:text-sm"
-                          placeholder="Question Content"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <button
-                        type="submit"
-                        className="group relative w-full flex justify-center
-                        py-2 px-4 border border-transparent text-sm font-medium
-                        rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-                        focus:outline-none focus:ring-2 focus:ring-offset-2
-                        focus:ring-indigo-500"
-                      >
-                        <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                          
-                        </span>
-                        Update
-                      </button>
-                    </div>
-                  </form>
+                  
 
                   <div className="mt-6">
                     <div className="w-full max-w-screen-xl mx-auto">
@@ -328,7 +322,7 @@ const PositionEdit: NextPage = () => {
                         <span onClick={() => removeQuestion(item.id)} className="text-red-400 cursor-pointer">x</span>
                       </div>
                       <div>
-                        {item.question.questionContent?.content}
+                        <ViewMarkDown value={item.question.questionContent?.content as string} ></ViewMarkDown>
                       </div>
                       
                     </div>
