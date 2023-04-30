@@ -148,7 +148,7 @@ export const positionRouter = createTRPCRouter({
                 positionId: input.id
             }
         });
-        await prisma.positionContent.delete({
+        await prisma.positionContent.deleteMany({
             where: {
                 positionId: input.id,
             }

@@ -11,7 +11,7 @@ const Position: NextPage = () => {
   const { data: questions} = api.position.getAllPositions.useQuery();
   const ctx = api.useContext();
 
-  const deletePosition = api.question.delete.useMutation({
+  const deletePosition = api.position.delete.useMutation({
     onSuccess: () => {
       void ctx.position.getAllPositions.invalidate();
     }
