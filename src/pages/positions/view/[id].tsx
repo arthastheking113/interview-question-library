@@ -9,6 +9,7 @@ import { PositionQuestionDetails } from "~/utils/PositionQuestionsDetails";
 import { SearchQuestionDetails } from "~/utils/searchQuestionDetails";
 import { MDEditor } from "~/components/markdownEditor";
 import { ViewMarkDown } from "~/components/viewMarkDown";
+import { AnswersModal } from "~/components/answerModal";
 
 const PositionView: NextPage = () => {
   const router = useRouter();
@@ -79,6 +80,8 @@ const PositionView: NextPage = () => {
                         <ViewMarkDown value={item.question.questionContent?.content as string} ></ViewMarkDown>
                       </div>
                       
+                      <AnswersModal questionId={item.question.id} />
+
                     </div>
                     )
                   })}

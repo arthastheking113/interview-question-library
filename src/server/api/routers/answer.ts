@@ -11,7 +11,7 @@ export const answerRouter = createTRPCRouter({
 
     getAnswer: protectedProcedure
     .input(z.object({questionId: z.string()}))
-    .mutation(async ({input}) => {
+    .query(async ({input}) => {
         return await prisma.answer.findMany({
             where: {
                 questionId: input.questionId
