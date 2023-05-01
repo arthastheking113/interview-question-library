@@ -20,27 +20,32 @@ export const HomeNavigation = () => {
                                 
                                 >Home </Link>
                             </li>
-                            <li role="profile" className="flex-auto text-center">
-                                <Link
-                                href="/positions"
-                                className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
-                                
-                                >Positions</Link>
-                            </li>
-                            <li role="profile" className="flex-auto text-center">
-                                <Link
-                                href="/questions"
-                                className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
-                                
-                                >Questions</Link>
-                            </li>
-                            <li role="contact" className="flex-auto text-center">
-                                <Link
-                                href="/tags"
-                                className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
-                                
-                                >Tags</Link>
-                            </li>
+                            {sessionData &&
+                                <>
+                                    <li role="profile" className="flex-auto text-center">
+                                        <Link
+                                        href="/positions"
+                                        className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
+
+                                        >Positions</Link>
+                                    </li>
+                                    <li role="profile" className="flex-auto text-center">
+                                        <Link
+                                        href="/questions"
+                                        className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
+
+                                        >Questions</Link>
+                                    </li>
+                                    <li role="contact" className="flex-auto text-center">
+                                        <Link
+                                        href="/tags"
+                                        className="my-2 block rounded px-7 pb-3.5 pt-4 text-xs font-medium uppercase leading-tight bg-white/10 p-4 hover:bg-white/20 md:mr-4"
+
+                                        >Tags</Link>
+                                    </li>
+                                </>
+                            }
+                            
                             <li role="contact" className="flex-auto text-center">
                                 <a
                                 onClick={sessionData ? () => void signOut() : () => void signIn()}
