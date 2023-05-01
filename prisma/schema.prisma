@@ -23,7 +23,7 @@ model Position {
 
 model PositionContent {
   id                      String @id @default(cuid())
-  description             String
+  description             String         @db.LongText
   positionId              String         @unique
   position                Position              @relation(fields: [positionId], references: [id])
 }
@@ -61,14 +61,14 @@ model QuestionTag {
 
 model QuestionContent {
   id         String   @id @default(cuid())
-  content    String
+  content    String   @db.LongText
   questionId String   @unique
   question   Question @relation(fields: [questionId], references: [id])
 }
 
 model Answer {
   id        String   @id @default(cuid())
-  content   String
+  content   String   @db.LongText
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
