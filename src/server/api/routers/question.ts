@@ -47,6 +47,9 @@ export const questionRouter = createTRPCRouter({
     searchQuestions: protectedProcedure
     .input(z.object({ text: z.string(), tagId: z.array(z.string()), pageIndex: z.number(), pageSize: z.number()}))
     .query(async ({ input }) => {
+        
+        if(input.text == null) input.text = "        ";
+        if(!input.text) input.text = "               ";
 
         const question: SearchQuestionDetails[] =  await prisma.question.findMany({ 
             where: { 

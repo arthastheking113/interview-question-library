@@ -45,9 +45,11 @@ const PositionEdit: NextPage = () => {
   const [searchTag, setSearchTag] = useState("");
   const [search, setSearch] = useState<string[]>([]);
   const [question, setQuestion] = useState("");
+  const [questionSearch, setQuestionSearch] = useState("");
+  
   const { data: tags } = api.tag.searchTags.useQuery({ text: searchTag });
 
-  const { data: searchQuestionsResult} = api.question.searchQuestions.useQuery({ text: question, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+  const { data: searchQuestionsResult} = api.question.searchQuestions.useQuery({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
 
   const addTag = (tagName: string) => {
       if(!search.includes(tagName) && tagName !== ""){
@@ -73,7 +75,8 @@ const PositionEdit: NextPage = () => {
   }
   const handleSubmitSearchQuestion = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    void ctx.question.searchQuestions.invalidate({ text: question, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+    setQuestionSearch(question);
+    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
     setSearchQuestions(searchQuestionsResult?.question as SearchQuestionDetails[]);
     const totalPageResult = searchQuestionsResult?.total;
     console.log(totalPageResult);
@@ -87,7 +90,7 @@ const PositionEdit: NextPage = () => {
 
   const goTo =(page:number) =>{
     setPageIndex(page - 1);
-    void ctx.question.searchQuestions.invalidate({ text: question, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
   }
 
   const addQuestion = (questionId: string) =>{
