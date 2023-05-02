@@ -50,7 +50,7 @@ export const questionRouter = createTRPCRouter({
         
         if(input.text == null) input.text = "        ";
         if(!input.text) input.text = "               ";
-
+        
         const question: SearchQuestionDetails[] =  await prisma.question.findMany({ 
             where: { 
                 OR:[
@@ -68,9 +68,11 @@ export const questionRouter = createTRPCRouter({
                     },
                     {
                         tags:{
-                            every: {
-                                tagId: {
-                                    in: input.tagId
+                            some: {
+                                tag: {
+                                    name:{
+                                        in: input.tagId
+                                    }
                                 }
                             }
                         }

@@ -43,26 +43,26 @@ const PositionEdit: NextPage = () => {
   
 
   const [searchTag, setSearchTag] = useState("");
-  const [search, setSearch] = useState<string[]>([]);
+  const [searchTagArray, setSearchTagArray] = useState<string[]>([]);
   const [question, setQuestion] = useState("");
   const [questionSearch, setQuestionSearch] = useState("");
   
   const { data: tags } = api.tag.searchTags.useQuery({ text: searchTag });
 
-  const { data: searchQuestionsResult} = api.question.searchQuestions.useQuery({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+  const { data: searchQuestionsResult} = api.question.searchQuestions.useQuery({ text: questionSearch, tagId: searchTagArray, pageSize: pageSize, pageIndex: pageIndex });
 
   const addTag = (tagName: string) => {
-      if(!search.includes(tagName) && tagName !== ""){
-          let newSearch = search.join(" ");
+      if(!searchTagArray.includes(tagName) && tagName !== ""){
+          let newSearch = searchTagArray.join(" ");
           newSearch = `${newSearch} ${tagName}`;
           const newArray = newSearch.split(" ").filter(c => c != "");
-          setSearch(newArray);
+          setSearchTagArray(newArray);
       }
       
   }
   const removeTag = (tagName:string) => {
-      const newArray = search.filter(c => c != tagName);
-      setSearch(newArray);
+      const newArray = searchTagArray.filter(c => c != tagName);
+      setSearchTagArray(newArray);
   }
 
 
@@ -76,21 +76,18 @@ const PositionEdit: NextPage = () => {
   const handleSubmitSearchQuestion = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setQuestionSearch(question);
-    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: searchTagArray, pageSize: pageSize, pageIndex: pageIndex });
     setSearchQuestions(searchQuestionsResult?.question as SearchQuestionDetails[]);
     const totalPageResult = searchQuestionsResult?.total;
-    console.log(totalPageResult);
     if (totalPageResult) {
-      console.log(totalPageResult);
       const setTotalPageResult = Math.floor(totalPageResult / pageSize) + 1;
-      console.log(setTotalPageResult)
       setTotalPage(setTotalPageResult);
    }
   }
 
   const goTo =(page:number) =>{
     setPageIndex(page - 1);
-    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: search, pageSize: pageSize, pageIndex: pageIndex });
+    void ctx.question.searchQuestions.invalidate({ text: questionSearch, tagId: searchTagArray, pageSize: pageSize, pageIndex: pageIndex });
   }
 
   const addQuestion = (questionId: string) =>{
@@ -196,10 +193,10 @@ const PositionEdit: NextPage = () => {
                                   </div>
                                   <br/>
                                   <div className="block text-gray-700 text-lg font-semibold py-2 px-2">
-                                      Selected Tags ({search.length})
+                                      Selected Tags ({searchTagArray.length})
                                   </div>
                                   <div className="flex items-center rounded-md">
-                                      {search?.map(function(item, i){
+                                      {searchTagArray?.map(function(item, i){
                                           return (
                                               <button 
                                               onClick={() => removeTag(item)}
@@ -242,12 +239,12 @@ const PositionEdit: NextPage = () => {
                                   
                                   <div className="block bg-gray-200 text-sm text-right py-2 px-3 -mx-3 -mb-2 rounded-b-lg">
                                       <button 
-                                      onClick={() => setSearch([])}
+                                      onClick={() => setSearchTagArray([])}
                                       className="hover:text-gray-600 text-gray-500 font-bold py-2 px-4 ">
                                           Clear
                                       </button>
                                       <button type="submit"
-                                      disabled={search.length === 0 && question === ""}
+                                      disabled={searchTagArray.length === 0 && question === ""}
                                       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50">
                                           Search
                                       </button>
