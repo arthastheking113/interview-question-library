@@ -48,8 +48,8 @@ export const questionRouter = createTRPCRouter({
     .input(z.object({ text: z.string(), tagId: z.array(z.string()), pageIndex: z.number(), pageSize: z.number()}))
     .query(async ({ input }) => {
         
-        if(input.text == null) input.text = "        ";
-        if(!input.text) input.text = "               ";
+        if(input.text == null) input.text = "   asdasdqweqwzxcz asd as qw eqc zxczx    qe  ";
+        if(!input.text) input.text = "   asdasdqweqwzxcz asd as qw eqc zxczx    qe  ";
         
         const question: SearchQuestionDetails[] =  await prisma.question.findMany({ 
             where: { 
